@@ -1,0 +1,12 @@
+{{ block title }}
+    Page title
+{{ endblock }}
+{% block content %}
+    <h1>Welcome to the Figure Matching Game!</h1>
+    <p>In this game, you and another player will each receive a set of 6 irregular figures. The figures are the same for both players, but the order is different.</p>
+    <p>Your goal is to communicate with the other player to figure out the correct matching order of the figures. As the main player, you will enter the 6 indices of the other player's figures that match the figures on your screen.</p>
+
+    {{ formfields }}
+    {{ next_button }}
+
+{{ endblock }}
