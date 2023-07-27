@@ -12,7 +12,7 @@ class C(BaseConstants):
     NUM_ROUNDS = 1
     PAYMENT_PER_CORRECT = 1
     NUM_FIGURES = 6
-    CORRECT_RESULTS = (4,2,5,1,3,6) # TODO: need to be ranmised
+    CORRECT_RESULTS = (4,2,5,1,3,6) # TODO: need to be randomised
     
 
 
@@ -85,4 +85,4 @@ class CombinedResults(Page):
             'combined_payoff': combined_payoff
         }
 
-page_sequence = [MyPage, ResultsWaitPage, Results, CombinedResults]
+page_sequence = [MyPage, ResultsWaitPage, Results]#, CombinedResults]
