@@ -1,10 +1,22 @@
 {{ block title }}
-    Page title
+    Figure Matching Game
 {{ endblock }}
 {% block content %}
     <h1>Welcome to the Figure Matching Game!</h1>
     <p>In this game, you and another player will each receive a set of 6 irregular figures. The figures are the same for both players, but the order is different.</p>
-    <p>Your goal is to communicate with the other player to figure out the correct matching order of the figures. As the main player, you will enter the 6 indices of the other player's figures that match the figures on your screen.</p>
+    <p>Your goal is to communicate with the other player to figure out the correct matching order of the figures.</p>
+
+    {{ chat }}
+
+    {% load static %}
+    <div style="display: flex; justify-content: space-around; flex-wrap: wrap;">
+        {% for figure in ordered_figures %}
+            <div style="text-align: center; flex: 1 0 20%;">
+                <img src="{% static figure %}" alt="Figure {{ forloop.counter }}">
+                <p>Figure {{ forloop.counter }}</p>
+            </div>
+        {% endfor %}
+    </div>
 
     {{ formfields }}
     {{ next_button }}
