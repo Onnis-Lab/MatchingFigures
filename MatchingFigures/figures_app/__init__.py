@@ -9,7 +9,7 @@ Your app description
 class C(BaseConstants):
     NAME_IN_URL = 'figures'
     PLAYERS_PER_GROUP = 2 # people who are in the same group, None if all are in the same group
-    NUM_ROUNDS = 2
+    NUM_ROUNDS = 1
     PAYMENT_PER_CORRECT = 1
     NUM_FIGURES = 6
     CORRECT_RESULTS = (4,2,5,1,3,6) # TODO: need to be randomised
