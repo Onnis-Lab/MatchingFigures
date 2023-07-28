@@ -1,9 +1,21 @@
 from otree.api import *
 import numpy as np
+from itertools import permutations
 
 doc = """
 Your app description
 """
+
+def get_images_perm():
+    images = ['1.png', '2.png', '3.png', '4.png', '5.png', '6.png']
+    indices = [1,2,3,4,5,6]
+    combo_length = 6
+
+    combinations_img = list(permutations(images))
+    combinations_idx = list(permutations(indices))
+    index = np.random.randint(0, len(combinations_img))
+
+    return combinations_idx[index], combinations_img[index]
 
 
 class C(BaseConstants):
@@ -12,7 +24,8 @@ class C(BaseConstants):
     NUM_ROUNDS = 1
     PAYMENT_PER_CORRECT = 1
     NUM_FIGURES = 6
-    CORRECT_RESULTS = (4,2,5,1,3,6) # TODO: need to be randomised
+    CORRECT_RESULTS = get_images_perm()
+    # CORRECT_RESULTS = (4,2,5,1,3,6) # TODO: need to be randomised
     
 
 

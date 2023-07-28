@@ -10,4 +10,4 @@ Currently only the demo can be run. To run a devserver, cd into the [Otree Proje
 ```sh
 otree devserver
 ```
-Open [the link](http://localhost:8000), click on either the session link or the single-use links. 
+Open [the link](http://localhost:8000) as prompted, lick on either the session link or the single-use links. 
