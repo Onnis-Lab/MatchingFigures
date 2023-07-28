@@ -11,4 +11,4 @@ Currently only the demo can be run. To run a devserver, cd into the [Otree Proje
 otree devserver
 ```
 Open [the link](http://localhost:8000) as prompted, lick on either the session link or the single-use links. 
-The page should like something like [this](Demo/Figure Matching Game.html)
+The page should like something like [this](Demo/Figure\ Matching\ Game.html)
