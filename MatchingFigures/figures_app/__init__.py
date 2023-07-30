@@ -15,6 +15,7 @@ class C(BaseConstants):
     NUM_FIGURES = 6
     IMAGES = ['1.png', '2.png', '3.png', '4.png', '5.png', '6.png']
     INDX1, INDX2 = get_perm(2)
+    print(INDX1, INDX2)
     # CORRECT_RESULTS = get_images_perm() 
 
 
@@ -51,6 +52,12 @@ class Player(BasePlayer):
         label=f"Please enter THE LABEL of the figure on YOUR PARTNER'S SCREEN that matches figure 6 on YOUR SCREEN"
         )
     
+    def _get_figure_names(self, indx):
+        figures = []
+        for i in indx:
+            figures.append(f'global/{i}.png')
+        return figures
+    
     def get_results(self):
         return np.array([self.result0,self.result1, self.result2, self.result3, self.result4, self.result5])
 
@@ -70,13 +77,14 @@ class MyPage(Page):
         # For example, let's say you have six figures in a specific order:
         
         if self.id_in_group == 1:
-            ordered_figures = ['global/4.png', 'global/2.png', 'global/5.png', 'global/1.png', 'global/3.png', 'global/6.png']
+            ordered_figures = self._get_figure_names(C.INDX1)
         else:
-            ordered_figures = ['global/1.png', 'global/2.png', 'global/3.png', 'global/4.png', 'global/5.png', 'global/6.png']
-            
+            ordered_figures = self._get_figure_names(C.INDX2)
         return {
             'ordered_figures': ordered_figures
         }
+     
+
 
 class ResultsWaitPage(WaitPage):
     @staticmethod
