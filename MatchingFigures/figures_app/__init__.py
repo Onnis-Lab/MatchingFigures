@@ -1,22 +1,11 @@
 from otree.api import *
 import numpy as np
 from itertools import permutations
+from figures_app._utils import *
 
 doc = """
 Your app description
 """
-
-def get_images_perm():
-    images = ['1.png', '2.png', '3.png', '4.png', '5.png', '6.png']
-    indices = [1,2,3,4,5,6]
-    combo_length = 6
-
-    combinations_img = list(permutations(images))
-    combinations_idx = list(permutations(indices))
-    index = np.random.randint(0, len(combinations_img))
-
-    return combinations_idx[index], combinations_img[index]
-
 
 class C(BaseConstants):
     NAME_IN_URL = 'figures'
@@ -24,9 +13,9 @@ class C(BaseConstants):
     NUM_ROUNDS = 1
     PAYMENT_PER_CORRECT = 1
     NUM_FIGURES = 6
-    CORRECT_RESULTS = get_images_perm()
-    # CORRECT_RESULTS = (4,2,5,1,3,6) # TODO: need to be randomised
-    
+    IMAGES = ['1.png', '2.png', '3.png', '4.png', '5.png', '6.png']
+    INDX1, INDX2 = get_perm(2)
+    # CORRECT_RESULTS = get_images_perm() 
 
 
 class Subsession(BaseSubsession):
@@ -98,7 +87,7 @@ class ResultsWaitPage(WaitPage):
         main_player.payoff = 0
 
         results = main_player.get_results()
-        main_player.payoff = C.NUM_FIGURES - np.count_nonzero(results-np.array(C.CORRECT_RESULTS))
+        main_player.payoff = check_answers(C.INDX1, C.INDX2, results)
         for player in group.get_players():
             player.payoff = main_player.payoff
     

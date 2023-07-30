@@ -5,11 +5,10 @@ import numpy as np
 
 # name of the image files 
 
-np.random.seed(1024)
+# np.random.seed(1024)
 def get_perm(n=1):
     # images = ['1.png', '2.png', '3.png', '4.png', '5.png', '6.png']
     indices = [1,2,3,4,5,6]
-    combo_length = 6
 
     # combinations_img = list(permutations(images))
     combinations_idx = list(permutations(indices))
@@ -33,7 +32,7 @@ def check_answers(inx1, indx2, answers):
     return score
 
 if __name__ == '__main__':
-    indx1, indx2 = get_images_perm(2)
+    indx1, indx2 = get_perm(2)
     print(indx1, indx2)
     test_answer = [6,2,5,3,1,4]
     score = check_answers(indx1, indx2, test_answer)
