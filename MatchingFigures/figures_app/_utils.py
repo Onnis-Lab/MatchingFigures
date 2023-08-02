@@ -1,34 +1,41 @@
 # utils 
 
 from itertools import permutations
-import numpy as np
+import random
 
 # name of the image files 
 
 # np.random.seed(1024)
-def get_perm(n=1):
-    # images = ['1.png', '2.png', '3.png', '4.png', '5.png', '6.png']
-    indices = [1,2,3,4,5,6]
+def get_perm(n_players=1, n_shuffle=3, n_cards=6, n_total=6):
+    """
+        Arguments:
+           - n_players: number of players
+           - n_shuffle: number of cards to shuffle
+           - n_cards: number of cards to select
+           - n_total: total number of cards
+    """ 
+    # select n_cards random cards from the n_total
+    indices = random.sample(range(1, n_total+1), k=n_cards)
+    # select the n_shuffle indices from the indices array to shuffle
+    shuffle_idx = random.sample(range(n_cards), k=n_shuffle)
+    
+    cards = list()
+    for p_id in range(n_players):
+        player_cards = indices.copy()
+        new_idx = shuffle_idx.copy()
+        random.shuffle(new_idx)
+        
+        for i in range(n_shuffle):
+            player_cards[new_idx[i]] = indices[shuffle_idx[i]]
+        
+        cards.append(player_cards)
 
-    # combinations_img = list(permutations(images))
-    combinations_idx = list(permutations(indices))
-
-    if n == 1:
-        index = np.random.randint(0, len(combinations_idx))
-        return list(combinations_idx[index])
-
-    a = []
-    for _ in range(n):
-        index = np.random.randint(0, len(combinations_idx))
-        a.append(list(combinations_idx[index]))
-
-    return a
+    return cards
 
 def check_answers(inx1, indx2, answers):
-    score = 0 
+    score = 0
     for i, answer in enumerate(answers):
-        if inx1[i] == indx2[answer-1]:
-            score += 1
+        score += 1 if inx1[i] == indx2[answer-1] else 0
     return score
 
 if __name__ == '__main__':

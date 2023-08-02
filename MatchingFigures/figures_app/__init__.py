@@ -1,6 +1,4 @@
 from otree.api import *
-import numpy as np
-from itertools import permutations
 from figures_app._utils import *
 
 doc = """
@@ -10,13 +8,15 @@ Your app description
 class C(BaseConstants):
     NAME_IN_URL = 'figures'
     PLAYERS_PER_GROUP = 2 # people who are in the same group, None if all are in the same group
+    MAIN_PLAYER_ID = 0
+
     NUM_ROUNDS = 1
     PAYMENT_PER_CORRECT = 1
+    
     NUM_FIGURES = 6
     IMAGES = ['1.png', '2.png', '3.png', '4.png', '5.png', '6.png']
-    INDX1, INDX2 = get_perm(2)
-    print(INDX1, INDX2)
-    # CORRECT_RESULTS = get_images_perm() 
+    cards = get_perm(n_players=2, n_cards=NUM_FIGURES, n_shuffle=3, n_total=NUM_FIGURES)
+    INDX1, INDX2 = cards[0], cards[1]
 
 
 class Subsession(BaseSubsession):
@@ -32,38 +32,47 @@ class Player(BasePlayer):
     '''All variables in the Player is for the current round.'''
     # payoff and round_number are defined in the background, don't redefine it.  
 
-
+    payoff = 0
+    
     result0 = models.IntegerField(
-        label=f"Please enter THE LABEL of the figure on YOUR PARTNER'S SCREEN that matches figure 1 on YOUR SCREEN"
+        label=f"My Figure 1 corresponds to Figure number ... on my partner's screen",
+        min=1, max=6
         )
     result1 = models.IntegerField(
-        label=f"Please enter THE LABEL of the figure on YOUR PARTNER'S SCREEN that matches figure 2 on YOUR SCREEN"
+        label=f"My Figure 2 corresponds to Figure number ... on my partner's screen",
+        min=1, max=6
         )
     result2 = models.IntegerField(
-        label=f"Please enter THE LABEL of the figure on YOUR PARTNER'S SCREEN that matches figure 3 on YOUR SCREEN"
+        label=f"My Figure 3 corresponds to Figure number ... on my partner's screen",
+        min=1, max=6
         )
     result3 = models.IntegerField(
-        label=f"Please enter THE LABEL of the figure on YOUR PARTNER'S SCREEN that matches figure 4 on YOUR SCREEN"
+        label=f"My Figure 4 corresponds to Figure number ... on my partner's screen",
+        min=1, max=6
         )
     result4 = models.IntegerField(
-        label=f"Please enter THE LABEL of the figure on YOUR PARTNER'S SCREEN that matches figure 5 on YOUR SCREEN"
+        label=f"My Figure 5 corresponds to Figure number ... on my partner's screen",
+        min=1, max=6
         )
     result5 = models.IntegerField(
-        label=f"Please enter THE LABEL of the figure on YOUR PARTNER'S SCREEN that matches figure 6 on YOUR SCREEN"
+        label=f"My Figure 6 corresponds to Figure number ... on my partner's screen",
+        min=1, max=6
         )
     
-    def _get_figure_names(self, indx):
-        figures = []
-        for i in indx:
-            figures.append(f'global/{i}.png')
-        return figures
+    def get_figure_names(self, indx):
+        return [f'global/{i}.png' for i in indx]
     
     def get_results(self):
-        return np.array([self.result0,self.result1, self.result2, self.result3, self.result4, self.result5])
+        return [self.result0, 
+                self.result1, 
+                self.result2, 
+                self.result3, 
+                self.result4, 
+                self.result5]
 
     
 # PAGES
-class MyPage(Page):
+class Game(Page):
     form_model = 'player'
 
     def get_form_fields(player: Player):
@@ -77,25 +86,25 @@ class MyPage(Page):
         # For example, let's say you have six figures in a specific order:
         
         if self.id_in_group == 1:
-            ordered_figures = self._get_figure_names(C.INDX1)
+            ordered_figures = self.get_figure_names(C.INDX1) 
+            text = "Bellow you have to enter THE LABEL of the figure on YOUR PARTNER'S SCREEN that matches the FIGURES ON YOUR SCREEN."
         else:
-            ordered_figures = self._get_figure_names(C.INDX2)
+            ordered_figures = self.get_figure_names(C.INDX2)
+            text = ""
+
         return {
-            'ordered_figures': ordered_figures
+            'ordered_figures': ordered_figures,
+            'text': text
         }
-     
 
 
 class ResultsWaitPage(WaitPage):
     @staticmethod
     def after_all_players_arrive(group: Group):
-        player_lists = group.get_players()
-        main_player = player_lists[0]
-        # check for correct answers
-        main_player.payoff = 0
+        # Check for correct answers
+        main_player = group.get_players()[C.MAIN_PLAYER_ID]
+        main_player.payoff = check_answers(C.INDX1, C.INDX2, main_player.get_results())
 
-        results = main_player.get_results()
-        main_player.payoff = check_answers(C.INDX1, C.INDX2, results)
         for player in group.get_players():
             player.payoff = main_player.payoff
     
@@ -105,15 +114,15 @@ class Results(Page):
     def var_for_template(player: Player):
         pass 
 
-class CombinedResults(Page):
-    @staticmethod
-    def var_for_template(player: Player):
-        all_players = player.in_all_rounds()
-        combined_payoff = 0
-        for this_player in all_players:
-            combined_payoff += this_player.payoff
-        return {
-            'combined_payoff': combined_payoff
-        }
+# class CombinedResults(Page):
+#     @staticmethod
+#     def var_for_template(player: Player):
+#         all_players = player.in_all_rounds()
+#         combined_payoff = 0
+#         for this_player in all_players:
+#             combined_payoff += this_player.payoff
+#         return {
+#             'combined_payoff': combined_payoff
+#         }
 
-page_sequence = [MyPage, ResultsWaitPage, Results]#, CombinedResults]
+page_sequence = [Game, ResultsWaitPage, Results]#, CombinedResults]
