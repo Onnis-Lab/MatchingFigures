@@ -2,6 +2,7 @@
 
 from itertools import permutations
 import random
+import numpy as np
 
 # name of the image files 
 
@@ -38,9 +39,22 @@ def check_answers(inx1, indx2, answers):
         score += 1 if inx1[i] == indx2[answer-1] else 0
     return score
 
+def random_network(n):
+    A = np.zeros((n, n), dtype=int)
+    
+    for i in range(n):
+        for j in range(n):
+            if j > i:
+                A[i, j] = np.random.randint(0, 2)
+    
+    return A
+
 if __name__ == '__main__':
     indx1, indx2 = get_perm(2)
     print(indx1, indx2)
     test_answer = [6,2,5,3,1,4]
     score = check_answers(indx1, indx2, test_answer)
     print(score)
+    
+    print(random_network(4))
+    

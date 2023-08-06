@@ -1,5 +1,6 @@
 from otree.api import *
 from figures_app._utils import *
+import numpy as np
 
 doc = """
 Your app description
@@ -14,19 +15,30 @@ class C(BaseConstants):
     PAYMENT_PER_CORRECT = 1
     
     NUM_FIGURES = 6
+    N_SHUFFLE = 3
     IMAGES = ['1.png', '2.png', '3.png', '4.png', '5.png', '6.png']
-    cards = get_perm(n_players=2, n_cards=NUM_FIGURES, n_shuffle=3, n_total=NUM_FIGURES)
-    INDX1, INDX2 = cards[0], cards[1]
+    CARDS = dict()
+    NETWORK = np.array([[0, 1, 0, 1], 
+                        [0, 0, 1, 0], 
+                        [0, 0, 0, 1], 
+                        [0, 0, 0, 0]])
+    STARTING_PAIR = (0, 1)
 
 
 class Subsession(BaseSubsession):
-    pass
+    pass    
+
+
+def creating_session(subsession: Subsession):
+    for group_id in range(1, len(subsession.get_groups()) + 1):
+        C.CARDS[group_id] = get_perm(n_players=C.PLAYERS_PER_GROUP, n_cards=C.NUM_FIGURES, n_shuffle=C.N_SHUFFLE, n_total=C.NUM_FIGURES)
+    # read network file
 
 
 class Group(BaseGroup):
     # The correct results should be placed here
     pass
-
+    
 
 class Player(BasePlayer):
     '''All variables in the Player is for the current round.'''
@@ -69,12 +81,13 @@ class Player(BasePlayer):
                 self.result3, 
                 self.result4, 
                 self.result5]
-
+    
     
 # PAGES
 class Game(Page):
     form_model = 'player'
 
+    @staticmethod
     def get_form_fields(player: Player):
         if player.id_in_group == 1:
             # The first player's ID is 1
@@ -82,14 +95,15 @@ class Game(Page):
         else:
             return []
 
+    @staticmethod
     def vars_for_template(self):
         # For example, let's say you have six figures in a specific order:
         
         if self.id_in_group == 1:
-            ordered_figures = self.get_figure_names(C.INDX1) 
+            ordered_figures = self.get_figure_names(C.CARDS[self.group.id_in_subsession][0]) 
             text = "Bellow you have to enter THE LABEL of the figure on YOUR PARTNER'S SCREEN that matches the FIGURES ON YOUR SCREEN."
         else:
-            ordered_figures = self.get_figure_names(C.INDX2)
+            ordered_figures = self.get_figure_names(C.CARDS[self.group.id_in_subsession][1])
             text = ""
 
         return {
