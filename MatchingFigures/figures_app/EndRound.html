@@ -1,0 +1,7 @@
+{{ block title }}
+    Welcome to the Figure Matching Game!
+{{ endblock }}
+
+{% block content %}
+    <p>You have to wait {{ player.rounds_to_play }} rounds until you play. Approximately {% time %} minutes.</p>
+{{ endblock }}
