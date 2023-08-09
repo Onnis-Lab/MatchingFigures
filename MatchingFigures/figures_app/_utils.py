@@ -1,8 +1,8 @@
 # utils 
 
-from itertools import permutations
 import random
-import numpy as np
+import csv
+from otree.api import *
 
 # name of the image files 
 
@@ -41,8 +41,42 @@ def check_answers(inx1, indx2, answers):
         score += 1 if inx1[i] == indx2[answer-1] else 0
     return score
 
-def write_to_file():
-    ...
+def write_to_file(subsession: BaseSubsession, cards, results, filename):
+    with open(filename, "w") as file:
+        fieldnames = [
+                        "id_in_subsession", 
+                        "group_id", 
+                        "id_in_group", 
+                        "c1", "c2", "c3", "c4", "c5", "c6", 
+                        "a1", "a2", "a3", "a4", "a5", "a6", 
+                        "score"
+                    ]
+        writer = csv.writer(file, delimiter=',')
+        
+        writer.writerow(fieldnames)
+        for player in subsession.get_players():
+            tmp = player.get_results()
+            write = list()
+
+            write.append(player.id_in_subsession)
+            write.append(player.group.id_in_subsession)
+            write.append(player.id_in_group)
+            write.append(cards[player.group.id_in_subsession][player.id_in_group - 1][0])
+            write.append(cards[player.group.id_in_subsession][player.id_in_group - 1][1])
+            write.append(cards[player.group.id_in_subsession][player.id_in_group - 1][2])
+            write.append(cards[player.group.id_in_subsession][player.id_in_group - 1][3])
+            write.append(cards[player.group.id_in_subsession][player.id_in_group - 1][4])
+            write.append(cards[player.group.id_in_subsession][player.id_in_group - 1][5])
+            write.append(tmp[0])
+            write.append(tmp[1])
+            write.append(tmp[2])
+            write.append(tmp[3])
+            write.append(tmp[4])
+            write.append(tmp[5])
+            write.append(results[player.id_in_subsession][player.round_number - 1])
+            
+            writer.writerow(write)
+
 
 if __name__ == '__main__':
     indx1, indx2 = get_perm(2)

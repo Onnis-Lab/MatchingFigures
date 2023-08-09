@@ -1,6 +1,5 @@
 from otree.api import *
 from figures_app._utils import *
-import numpy as np
 import os
 
 doc = """
@@ -14,7 +13,7 @@ class C(BaseConstants):
 
     NUM_ROUNDS = 1
     PAYMENT_PER_CORRECT = 1
-    TIME_PER_GAME = 0.1 # min
+    TIME_PER_GAME = 0.5 # min
     
     DIR_IMAGES = "original" # ai or original
     NUM_TOTAL = len([file for file in os.listdir(f"_static/global/{DIR_IMAGES}") if file.endswith(".png")])
@@ -54,7 +53,8 @@ def make_result(fig_id):
         label=f"My Figure {fig_id} corresponds to Figure number ... on my partner's screen  " +\
         f"//  Min figur {fig_id} tilsvarer figur nummer ... på partnerens skjerm.", 
         min=1, 
-        max=6
+        max=6,
+        initial=-1
     )
     
 class Player(BasePlayer):
@@ -152,6 +152,7 @@ class WaitForGame(Page):
 class EndGame(Page):
     @staticmethod
     def is_displayed(player: Player):
+        write_to_file(player.subsession, C.CARDS, C.RESULTS, f"round_{player.round_number}.csv")
         return player.group.round_number == C.NUM_ROUNDS
     
     @staticmethod
