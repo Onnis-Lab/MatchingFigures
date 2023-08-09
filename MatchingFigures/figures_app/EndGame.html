@@ -1,0 +1,24 @@
+{% block content %}
+    <h1>Thank you for playing the Figure Matching Game!</h1>
+    <p>You played {{ rounds_played }} rounds. Your total score is {{ sum_score }} points. Below you can see the score you got in each round.</p>
+
+    <h1>Takk for at du spilte figurmatchingen!</h1>
+    <p>Du har spilt {{ rounds_played }} runder. Din totale poengsum er {{ sum_score }} poeng. Nedenfor kan du se poengsummen du fikk i hver runde.</p>
+
+    <table class="table">
+        <tr>
+            <th>Round/Runde</th>
+            {{ for round in rounds }}
+                <td>{{ round }}</td>
+            {{ endfor }}
+        </tr>
+        
+        <tr>
+            <th>Score/Poengsum</th>
+            {{ for score in scores }}
+                <td>{{ score }}</td>
+            {{ endfor }}
+        </tr>
+    </table>
+    <p>You can now close this webpage.  //  Du kan nå lukke denne websiden.</p>
+{{ endblock }}

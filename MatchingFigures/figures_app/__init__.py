@@ -12,9 +12,9 @@ class C(BaseConstants):
     PLAYERS_PER_GROUP = 2 # people who are in the same group, None if all are in the same group
     MAIN_PLAYER_ID = 0
 
-    NUM_ROUNDS = 2
+    NUM_ROUNDS = 1
     PAYMENT_PER_CORRECT = 1
-    TIME_PER_GAME = 5 # min
+    TIME_PER_GAME = 0.1 # min
     
     DIR_IMAGES = "original" # ai or original
     NUM_TOTAL = len([file for file in os.listdir(f"_static/global/{DIR_IMAGES}") if file.endswith(".png")])
@@ -22,12 +22,8 @@ class C(BaseConstants):
     N_SHUFFLE = 3
 
     CARDS = dict()
-    NETWORK = np.array([[0, 1, 0, 1], 
-                        [0, 0, 1, 0], 
-                        [0, 0, 0, 1], 
-                        [0, 0, 0, 0]])
-    STARTING_PAIR = (0, 1)
-
+    RESULTS = dict()
+    
 
 class Subsession(BaseSubsession):
     pass    
@@ -41,6 +37,10 @@ def creating_session(subsession: Subsession):
             n_shuffle=C.N_SHUFFLE, 
             n_total=C.NUM_TOTAL
         )
+    
+    for player_id in range(1, len(subsession.get_players()) + 1): 
+        C.RESULTS[player_id] = []
+
     # read network file
 
 
@@ -51,7 +51,8 @@ class Group(BaseGroup):
 
 def make_result(fig_id):
     return models.IntegerField(
-        label=f"My Figure {fig_id} corresponds to Figure number ... on my partner's screen", 
+        label=f"My Figure {fig_id} corresponds to Figure number ... on my partner's screen  " +\
+        f"//  Min figur {fig_id} tilsvarer figur nummer ... på partnerens skjerm.", 
         min=1, 
         max=6
     )
@@ -87,6 +88,7 @@ class Player(BasePlayer):
 # PAGES
 class Game(Page):
     form_model = "player"
+    timeout_seconds = 60 * C.TIME_PER_GAME
 
     @staticmethod
     def get_form_fields(player: Player):
@@ -94,13 +96,15 @@ class Game(Page):
 
     @staticmethod
     def vars_for_template(self):
-        ordered_figures = self.get_figure_names(C.CARDS[self.group.id_in_subsession][self.id_in_group - 1])
-        text = "Bellow you have to enter THE LABEL of the figure on " +\
-        "YOUR PARTNER'S SCREEN that matches the FIGURES ON YOUR SCREEN." if self.id_in_group == 1 else ""
-        
         return {
-            'ordered_figures': ordered_figures,
-            'text': text
+            'ordered_figures': self.get_figure_names(C.CARDS[self.group.id_in_subsession][self.id_in_group - 1]),
+            'text': "Bellow you have to enter THE LABEL of the figure on " +\
+                    "YOUR PARTNER'S SCREEN that matches the FIGURES ON YOUR SCREEN." +\
+                    "  //  Nedenfor må du skrive inn MERKET på figuren på " +\
+                    "PARTNERENS SKJERM som samsvarer med FIGURENE PÅ DIN SKJERM." if self.id_in_group == 1 else "" +\
+                    "Converse with your partner so he/she can input the correct labels of YOUR FIGURES on HIS/HERS ANSWER FORM." +\
+                    "  //  Snakk med partneren din, slik at han/hun kan skrive inn de riktige merkelappene for DINE FIGURER på HANS/HANS SVARSKJEMA.",
+            'time': C.TIME_PER_GAME
         }
 
 
@@ -108,18 +112,20 @@ class ResultsWaitPage(WaitPage):
     @staticmethod
     def after_all_players_arrive(group: Group):
         # Check for correct answers
-        main_player = group.get_players()[C.MAIN_PLAYER_ID]
-        main_player.score = check_answers(
+        score = check_answers(
             C.CARDS[group.id_in_subsession][0], 
             C.CARDS[group.id_in_subsession][1], 
-            main_player.get_results()
+            group.get_players()[C.MAIN_PLAYER_ID].get_results()
         )
 
         for player in group.get_players():
-            player.score = main_player.score
+            player.score = score
+            C.RESULTS[player.id_in_subsession].append(score)
     
 
 class Results(Page):
+    timeout_seconds = 15
+
     @staticmethod
     def vars_for_template(self):
         return {
@@ -128,7 +134,11 @@ class Results(Page):
         }
 
 
-class EndRound(Page):
+class WaitForGame(Page):
+    @staticmethod
+    def is_displayed(player: Player):
+        return False #C.NUM_ROUNDS != 1
+    
     @staticmethod
     def vars_for_template(self):
         multiplier = 1
@@ -139,4 +149,20 @@ class EndRound(Page):
         } 
 
 
-page_sequence = [Game, ResultsWaitPage, Results, EndRound]
+class EndGame(Page):
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.group.round_number == C.NUM_ROUNDS
+    
+    @staticmethod
+    def vars_for_template(self):
+        return {
+            'sum_score': sum(C.RESULTS[self.id_in_subsession]),
+            'rounds_played': len(C.RESULTS[self.id_in_subsession]),
+            'label': ["Round", "Score"],
+            'rounds': list(range(1, len(C.RESULTS[self.id_in_subsession]) + 1)),
+            'scores': C.RESULTS[self.id_in_subsession]
+        }
+
+
+page_sequence = [Game, ResultsWaitPage, Results, WaitForGame, EndGame]

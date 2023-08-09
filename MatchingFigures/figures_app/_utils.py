@@ -36,18 +36,13 @@ def get_perm(n_players=1, n_shuffle=3, n_cards=6, n_total=6):
 def check_answers(inx1, indx2, answers):
     score = 0
     for i, answer in enumerate(answers):
+        if answer == 0: # not answered in time, then continue
+            continue
         score += 1 if inx1[i] == indx2[answer-1] else 0
     return score
 
-def random_network(n):
-    A = np.zeros((n, n), dtype=int)
-    
-    for i in range(n):
-        for j in range(n):
-            if j > i:
-                A[i, j] = np.random.randint(0, 2)
-    
-    return A
+def write_to_file():
+    ...
 
 if __name__ == '__main__':
     indx1, indx2 = get_perm(2)
@@ -55,6 +50,4 @@ if __name__ == '__main__':
     test_answer = [6,2,5,3,1,4]
     score = check_answers(indx1, indx2, test_answer)
     print(score)
-    
-    print(random_network(4))
-    
+        
