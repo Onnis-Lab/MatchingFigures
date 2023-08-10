@@ -21,6 +21,15 @@ SESSION_CONFIG_DEFAULTS = dict(
 PARTICIPANT_FIELDS = []
 SESSION_FIELDS = []
 
+ROOMS = [
+    dict(
+        name='pilot',
+        display_name='Testing Room'
+        # participant_label_file='_rooms/econ101.txt',
+        # use_secure_urls=True
+    )
+]
+
 # ISO-639 code
 # for example: de, fr, ja, ko, zh-hans
 LANGUAGE_CODE = 'en'

@@ -1,27 +1,40 @@
-{{ block title }}
-    Figure Matching Game
-{{ endblock }}
 {% block content %}
-    <h1>Welcome to the Figure Matching Game!</h1>
-    <p>In this game, you and another player will each receive a set of 6 irregular figures. The figures are the same for both players, but the order is different.</p>
-    <p>Your goal is to communicate with the other player to figure out the correct matching order of the figures.</p>
+    <h1>Figure Matching Game</h1>
+    <h3>Welcome to the Figure Matching Game!</h3>
+    <p>
+        In this game you and another player will each receive a set of 6 irregular figures. 
+        The figures are the same for both players, but the order is different. 
+        Your goal is to communicate with the other player, through the chat service, to figure out the correct matching order of the figures.
+        You may choose to communicate in English or Norwegian.
+        You have {{ time }} minutes to complete the task. If you end the task earlier, you will have to wait the remaining time. 
+        Good luck!
+    </p>
+    <h3>Velkommen til figurmatchingen!</h3>
+    <p>
+        I dette spillet får du og en annen spiller et sett med 6 uregelmessige figurer hver. 
+        Figurene er de samme for begge spillerne, men rekkefølgen er forskjellig. 
+        Målet ditt er å kommunisere med den andre spilleren via chattetjenesten for å finne den riktige rekkefølgen på figurene.
+        Du kan velge å kommunisere på norsk eller engelsk.
+        Du har {{ time }} minutter til å fullføre oppgaven. Hvis du avslutter oppgaven tidligere, må du vente resten av tiden. 
+        Lykke til!
+    </p>
 
-    {{ chat }}
 
     {% load static %}
     <div style="display: flex; justify-content: space-around; flex-wrap: wrap;">
         {% for figure in ordered_figures %}
             <div style="text-align: center; flex: 1 0 20%;">
                 <img src="{% static figure %}" alt="Figure {{ forloop.counter }}" width="256" height="256">
-                <p>Figure {{ forloop.counter }}</p>
+                <p>Fig. {{ forloop.counter }}</p>
             </div>
         {% endfor %}
     </div>
 
+    {{ chat }}
     
+    <p></p>
     <p>{% text %}</p>
 
     {{ formfields }}
-    {{ next_button }}
 
 {{ endblock }}
