@@ -152,7 +152,7 @@ class WaitForGame(Page):
 class EndGame(Page):
     @staticmethod
     def is_displayed(player: Player):
-        write_to_file(player.subsession, C.CARDS, C.RESULTS, f"round_{player.round_number}.csv")
+        # write_to_file(player.subsession, C.CARDS, C.RESULTS, f"round_{player.round_number}.csv")
         return player.group.round_number == C.NUM_ROUNDS
     
     @staticmethod
