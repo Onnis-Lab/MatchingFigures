@@ -13,7 +13,7 @@ class C(BaseConstants):
 
     NUM_ROUNDS = 1
     PAYMENT_PER_CORRECT = 1
-    TIME_PER_GAME = 0.5 # min
+    TIME_PER_GAME = 4 # min
     
     DIR_IMAGES = "original" # ai or original
     NUM_TOTAL = len([file for file in os.listdir(f"_static/global/{DIR_IMAGES}") if file.endswith(".png")])
@@ -166,4 +166,10 @@ class EndGame(Page):
         }
 
 
-page_sequence = [Game, ResultsWaitPage, Results, WaitForGame, EndGame]
+class WaitForStartGame(WaitPage):
+    @staticmethod
+    def after_all_players_arrive(group: Group):
+        pass
+
+
+page_sequence = [WaitForStartGame, Game, ResultsWaitPage, Results, WaitForGame, EndGame]
