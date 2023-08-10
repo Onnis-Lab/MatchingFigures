@@ -119,7 +119,6 @@ def watts_strogatz(N=12,k=4,p=0.4):
     draw(G, pos) 
 
 
-
 if __name__ == '__main__':
 
     # RANDOM NETWORK
