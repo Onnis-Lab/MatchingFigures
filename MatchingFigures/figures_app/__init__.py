@@ -9,10 +9,11 @@ Your app description
 class C(BaseConstants):
     NAME_IN_URL = 'figures'
     PLAYERS_PER_GROUP = 2 # people who are in the same group, None if all are in the same group
-    MAIN_PLAYER_ID = 0
+    MAIN_PLAYER_ID = 1
 
-    NUM_ROUNDS = 1
+    NUM_ROUNDS = 2
     PAYMENT_PER_CORRECT = 1
+    TIME_RULES = 1 # min
     TIME_PER_GAME = 4 # min
     TIME_RESULTS = 15 # sec
     
@@ -116,7 +117,7 @@ class Game(Page):
 
     @staticmethod
     def get_form_fields(player: Player):
-        return ['result0', 'result1', 'result2', 'result3', 'result4', 'result5'] if player.id_in_group == 1 else []
+        return ['result0', 'result1', 'result2', 'result3', 'result4', 'result5'] if player.id_in_group == C.MAIN_PLAYER_ID else []
 
     @staticmethod
     def vars_for_template(self):
@@ -125,28 +126,27 @@ class Game(Page):
             'text': "Bellow you have to enter THE LABEL of the figure on " +\
                     "YOUR PARTNER'S SCREEN that matches the FIGURES ON YOUR SCREEN. Note that your answer should be between 1 and 6." +\
                     "  //  Nedenfor må du skrive inn MERKET på figuren på " +\
-                    "PARTNERENS SKJERM som samsvarer med FIGURENE PÅ DIN SKJERM. Vær oppmerksom på at svaret ditt skal ligge mellom 1 og 6." if self.id_in_group == 1 else "" +\
+                    "PARTNERENS SKJERM som samsvarer med FIGURENE PÅ DIN SKJERM. Vær oppmerksom på at svaret ditt skal ligge mellom 1 og 6." if self.id_in_group == C.MAIN_PLAYER_ID else "" +\
                     "Converse with your partner so he/she can input the correct labels of YOUR FIGURES on HIS/HERS ANSWER FORM." +\
                     "  //  Snakk med partneren din, slik at han/hun kan skrive inn de riktige merkelappene for DINE FIGURER på HANS/HANS SVARSKJEMA.",
             'time': C.TIME_PER_GAME
         }
 
-
-class ResultsWaitPage(WaitPage):
     @staticmethod
-    def after_all_players_arrive(group: Group):
-        # Check for correct answers
-        players = group.get_players()
-        score = check_answers(
-            players[0].get_cards(), 
-            players[1].get_cards(), 
-            group.get_players()[C.MAIN_PLAYER_ID].get_results()
-        )
+    def before_next_page(player, timeout_happened):
+        if timeout_happened:
+            if player.id_in_group == C.MAIN_PLAYER_ID:
+                players = player.group.get_players()
+                score = check_answers(
+                    players[0].get_cards(), 
+                    players[1].get_cards(), 
+                    player.group.get_players()[C.MAIN_PLAYER_ID - 1].get_results()
+                )
 
-        for player in players:
-            player.score = score
-            C.RESULTS[player.id_in_subsession].append(score)
-    
+                for player_ in players:
+                    player_.score = score
+                    C.RESULTS[player_.id_in_subsession].append(score)
+
 
 class Results(Page):
     timeout_seconds = C.TIME_RESULTS
@@ -159,10 +159,13 @@ class Results(Page):
         }
 
 
-class WaitForGame(Page):
+class WaitForGame(WaitPage):
+    wait_for_all_groups = True
+    template_name = "figures_app/WaitForGame.html"
+    
     @staticmethod
     def is_displayed(player: Player):
-        return False #C.NUM_ROUNDS != 1
+        return C.NUM_ROUNDS != 1 and player.group.round_number == 1
     
     @staticmethod
     def vars_for_template(self):
@@ -196,4 +199,16 @@ class WaitForStartGame(WaitPage):
         pass
 
 
-page_sequence = [WaitForStartGame, Game, ResultsWaitPage, Results, WaitForGame, EndGame]
+class Rules(Page):
+    timeout_seconds = C.TIME_RULES * 60
+    
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.group.round_number == 1
+
+    @staticmethod
+    def vars_for_template(self):
+        return {
+        } 
+
+page_sequence = [WaitForGame, Rules, WaitForStartGame, Game, Results, EndGame]
