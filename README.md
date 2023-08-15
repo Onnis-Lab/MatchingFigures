@@ -28,8 +28,12 @@ Saved your code into file "MatchingFigures.otreezip"
 Go to
 [Otreehub](https://www.otreehub.com/my_projects/)
 Click **upload** then choose the .otreezip file. 
+Reset DB if you have saved the file.
+
+
 
 ### Create Sessions
 If you don't create a session, demo version will be run with all the debug infomation. 
 Go to Sessions, click **Create new session**. Create a new session for **EVERY EXPERIMENT**. 
+
 
