@@ -25,7 +25,7 @@ class C(BaseConstants):
     NUM_FIGURES = 6
     N_SHUFFLE = 3
 
-    RESULTS = dict()
+    # RESULTS = dict()
 
     
 
@@ -65,8 +65,8 @@ def creating_session(subsession: Subsession):
             player.card4 = cards[i][4]
             player.card5 = cards[i][5]
    
-    for player_id in range(1, len(subsession.get_players()) + 1): 
-        C.RESULTS[player_id] = [] 
+    # for player_id in range(1, len(subsession.get_players()) + 1): 
+        # C.RESULTS[player_id] = [] 
 
     # read network file
     subsession.group_by_round()
@@ -165,7 +165,7 @@ class Game(Page):
 
                 for player_ in players:
                     player_.score = score
-                    C.RESULTS[player_.id_in_subsession].append(score)
+                    # C.RESULTS[player_.id_in_subsession].append(score)
 
     @staticmethod
     def is_displayed(player: Player):
@@ -225,20 +225,20 @@ class WaitForRound(WaitPage):
         } 
     
 
-class EndGame(Page):
-    @staticmethod
-    def is_displayed(player: Player):
-        return player.group.round_number == C.NUM_ROUNDS
+# class EndGame(Page):
+#     @staticmethod
+#     def is_displayed(player: Player):
+#         return player.group.round_number == C.NUM_ROUNDS
     
-    @staticmethod
-    def vars_for_template(self):
-        return {
-            'sum_score': sum(C.RESULTS[self.id_in_subsession]),
-            'rounds_played': len(C.RESULTS[self.id_in_subsession]),
-            'label': ["Round", "Score"],
-            'rounds': list(range(1, len(C.RESULTS[self.id_in_subsession]) + 1)),
-            'scores': C.RESULTS[self.id_in_subsession]
-        }
+#     @staticmethod
+#     def vars_for_template(self):
+#         return {
+#             'sum_score': sum(C.RESULTS[self.id_in_subsession]),
+#             'rounds_played': len(C.RESULTS[self.id_in_subsession]),
+#             'label': ["Round", "Score"],
+#             'rounds': list(range(1, len(C.RESULTS[self.id_in_subsession]) + 1)),
+#             'scores': C.RESULTS[self.id_in_subsession]
+#         }
 
 
 class WaitForStartGame(WaitPage):
@@ -268,4 +268,4 @@ class Rules(Page):
         } 
 
 
-page_sequence = [WaitForGame, Rules, WaitForStartGame, Game, WaitForRound, Results, ShuffleWaitPage, EndGame]
+page_sequence = [WaitForGame, Rules, WaitForStartGame, Game, WaitForRound, Results, ShuffleWaitPage] # EndGame
