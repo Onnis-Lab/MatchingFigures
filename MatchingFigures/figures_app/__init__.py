@@ -16,8 +16,8 @@ class C(BaseConstants):
  
     NUM_ROUNDS = len(ALL_PARTICIPANTS)
     PAYMENT_PER_CORRECT = 1
-    TIME_RULES = 0.1 # min
-    TIME_PER_GAME = 1 # min
+    TIME_RULES = 1 # min
+    TIME_PER_GAME = 4 # min
     TIME_RESULTS = 15 # sec
     
     DIR_IMAGES = "original" # ai or original
