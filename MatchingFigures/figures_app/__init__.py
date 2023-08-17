@@ -1,6 +1,7 @@
 from otree.api import *
 from figures_app._utils import *
 import os
+from figures_app.network_utils import process_txt
 
 doc = """
 Your app description
@@ -11,10 +12,12 @@ class C(BaseConstants):
     PLAYERS_PER_GROUP = 2 # people who are in the same group, None if all are in the same group
     MAIN_PLAYER_ID = 1
 
-    NUM_ROUNDS = 2
+    ALL_PARTICIPANTS, ALL_PAIRS = process_txt('figures_app/random4242.txt')
+ 
+    NUM_ROUNDS = len(ALL_PARTICIPANTS)
     PAYMENT_PER_CORRECT = 1
-    TIME_RULES = 1 # min
-    TIME_PER_GAME = 4 # min
+    TIME_RULES = 0.1 # min
+    TIME_PER_GAME = 1 # min
     TIME_RESULTS = 15 # sec
     
     DIR_IMAGES = "original" # ai or original
@@ -23,10 +26,26 @@ class C(BaseConstants):
     N_SHUFFLE = 3
 
     RESULTS = dict()
+
     
 
 class Subsession(BaseSubsession):
-    pass    
+
+    def _create_group_matrix(self):
+        pairs = C.ALL_PAIRS[self.round_number-1]
+        matrix = []
+        players = self.get_players()
+        for pair in pairs:
+            group = [players[player_id] for player_id in pair]
+            matrix.append(group)
+        return matrix
+
+
+    def group_by_round(self):
+        
+        # New groupings
+        matrix = self._create_group_matrix()
+        self.set_group_matrix(matrix)
 
 
 def creating_session(subsession: Subsession):
@@ -50,6 +69,7 @@ def creating_session(subsession: Subsession):
         C.RESULTS[player_id] = [] 
 
     # read network file
+    subsession.group_by_round()
 
 
 class Group(BaseGroup):
@@ -147,6 +167,9 @@ class Game(Page):
                     player_.score = score
                     C.RESULTS[player_.id_in_subsession].append(score)
 
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.id_in_subsession in C.ALL_PARTICIPANTS[player.subsession.round_number-1]
 
 class Results(Page):
     timeout_seconds = C.TIME_RESULTS
@@ -171,11 +194,36 @@ class WaitForGame(WaitPage):
     def vars_for_template(self):
         multiplier = 1
 
+        for round in range(self.round_number, C.NUM_ROUNDS): # next round rmb counter starts at 1
+            if self.id_in_subsession in C.ALL_PARTICIPANTS[round]:
+                break
+            multiplier += 1
+
         return {
             'time': C.TIME_PER_GAME * multiplier,
             'rounds' : self.rounds_to_play
         } 
 
+class WaitForRound(WaitPage):
+
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.id_in_subsession not in C.ALL_PARTICIPANTS[player.round_number-1]
+     
+    @staticmethod
+    def vars_for_template(self):
+        multiplier = 1
+
+        for round in range(self.round_number, C.NUM_ROUNDS): # next round rmb counter starts at 1
+            if self.id_in_subsession in C.ALL_PARTICIPANTS[round]:
+                break
+            multiplier += 1
+
+        return {
+            'time': C.TIME_PER_GAME * multiplier,
+            'rounds' : self.rounds_to_play
+        } 
+    
 
 class EndGame(Page):
     @staticmethod
@@ -198,6 +246,14 @@ class WaitForStartGame(WaitPage):
     def after_all_players_arrive(group: Group):
         pass
 
+class ShuffleWaitPage(WaitPage):
+
+    wait_for_all_groups = True
+
+    @staticmethod
+    def after_all_players_arrive(subsession):
+        subsession.group_by_round()
+        
 
 class Rules(Page):
     timeout_seconds = C.TIME_RULES * 60
@@ -211,4 +267,5 @@ class Rules(Page):
         return {
         } 
 
-page_sequence = [WaitForGame, Rules, WaitForStartGame, Game, Results, EndGame]
+
+page_sequence = [WaitForGame, Rules, WaitForStartGame, Game, WaitForRound, Results, ShuffleWaitPage, EndGame]
