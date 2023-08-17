@@ -148,7 +148,7 @@ class Game(Page):
                     "  //  Nedenfor må du skrive inn MERKET på figuren på " +\
                     "PARTNERENS SKJERM som samsvarer med FIGURENE PÅ DIN SKJERM. Vær oppmerksom på at svaret ditt skal ligge mellom 1 og 6." if self.id_in_group == C.MAIN_PLAYER_ID else "" +\
                     "Converse with your partner so he/she can input the correct labels of YOUR FIGURES on HIS/HERS ANSWER FORM." +\
-                    "  //  Snakk med partneren din, slik at han/hun kan skrive inn de riktige merkelappene for DINE FIGURER på HANS/HANS SVARSKJEMA.",
+                    "  //  Snakk med partneren din, slik at han/hun kan skrive inn de riktige merkelappene for DINE FIGURER på HANS/HENNES SVARSKJEMA.",
             'time': C.TIME_PER_GAME
         }
 
@@ -184,28 +184,16 @@ class Results(Page):
 
 class WaitForGame(WaitPage):
     wait_for_all_groups = True
-    template_name = "figures_app/WaitForGame.html"
     
     @staticmethod
     def is_displayed(player: Player):
         return C.NUM_ROUNDS != 1 and player.group.round_number == 1
-    
-    @staticmethod
-    def vars_for_template(self):
-        multiplier = 1
 
-        for round in range(self.round_number, C.NUM_ROUNDS): # next round rmb counter starts at 1
-            if self.id_in_subsession in C.ALL_PARTICIPANTS[round]:
-                break
-            multiplier += 1
-
-        return {
-            'time': C.TIME_PER_GAME * multiplier,
-            'rounds' : self.rounds_to_play
-        } 
 
 class WaitForRound(WaitPage):
-
+    wait_for_all_groups = True
+    template_name = "figures_app/WaitForRound.html"
+    
     @staticmethod
     def is_displayed(player: Player):
         return player.id_in_subsession not in C.ALL_PARTICIPANTS[player.round_number-1]
@@ -220,8 +208,7 @@ class WaitForRound(WaitPage):
             multiplier += 1
 
         return {
-            'time': C.TIME_PER_GAME * multiplier,
-            'rounds' : self.rounds_to_play
+            'time': C.TIME_PER_GAME * multiplier
         } 
     
 
