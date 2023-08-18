@@ -16,8 +16,8 @@ class C(BaseConstants):
  
     NUM_ROUNDS = len(ALL_PARTICIPANTS)
     PAYMENT_PER_CORRECT = 1
-    TIME_RULES = 1 # min
-    TIME_PER_GAME = 4 # min
+    TIME_RULES = 0.3 # min
+    TIME_PER_GAME = 1 # min
     TIME_RESULTS = 15 # sec
     
     DIR_IMAGES = "original" # ai or original
@@ -47,29 +47,34 @@ class Subsession(BaseSubsession):
         matrix = self._create_group_matrix()
         self.set_group_matrix(matrix)
 
+    def assign_cards(self):
+        for group in self.get_groups():
+            cards = get_perm(
+                n_players=C.PLAYERS_PER_GROUP, 
+                n_cards=C.NUM_FIGURES, 
+                n_shuffle=C.N_SHUFFLE, 
+                n_total=C.NUM_TOTAL
+            )
+            
+            for i, player in enumerate(group.get_players()):
+                print(player.id_in_subsession)
+                player.card0 = cards[i][0]
+                player.card1 = cards[i][1]
+                player.card2 = cards[i][2]
+                player.card3 = cards[i][3]
+                player.card4 = cards[i][4]
+                player.card5 = cards[i][5]
+
+
 
 def creating_session(subsession: Subsession):
-    for group in subsession.get_groups():
-        cards = get_perm(
-            n_players=C.PLAYERS_PER_GROUP, 
-            n_cards=C.NUM_FIGURES, 
-            n_shuffle=C.N_SHUFFLE, 
-            n_total=C.NUM_TOTAL
-        )
-        
-        for i, player in enumerate(group.get_players()):
-            player.card0 = cards[i][0]
-            player.card1 = cards[i][1]
-            player.card2 = cards[i][2]
-            player.card3 = cards[i][3]
-            player.card4 = cards[i][4]
-            player.card5 = cards[i][5]
    
     # for player_id in range(1, len(subsession.get_players()) + 1): 
         # C.RESULTS[player_id] = [] 
 
     # read network file
     subsession.group_by_round()
+    subsession.assign_cards()
 
 
 class Group(BaseGroup):
@@ -169,7 +174,8 @@ class Game(Page):
 
     @staticmethod
     def is_displayed(player: Player):
-        return player.id_in_subsession in C.ALL_PARTICIPANTS[player.subsession.round_number-1]
+        # print(C.ALL_PARTICIPANTS[player.subsession.round_number-1])
+        return player.id_in_subsession-1 in C.ALL_PARTICIPANTS[player.subsession.round_number-1]
 
 class Results(Page):
     timeout_seconds = C.TIME_RESULTS
@@ -196,14 +202,14 @@ class WaitForRound(WaitPage):
     
     @staticmethod
     def is_displayed(player: Player):
-        return player.id_in_subsession not in C.ALL_PARTICIPANTS[player.round_number-1]
+        return player.id_in_subsession-1 not in C.ALL_PARTICIPANTS[player.round_number-1]
      
     @staticmethod
     def vars_for_template(self):
         multiplier = 1
 
         for round in range(self.round_number, C.NUM_ROUNDS): # next round rmb counter starts at 1
-            if self.id_in_subsession in C.ALL_PARTICIPANTS[round]:
+            if self.id_in_subsession-1 in C.ALL_PARTICIPANTS[round]:
                 break
             multiplier += 1
 
@@ -240,6 +246,8 @@ class ShuffleWaitPage(WaitPage):
     @staticmethod
     def after_all_players_arrive(subsession):
         subsession.group_by_round()
+        subsession.assign_cards()
+        
         
 
 class Rules(Page):

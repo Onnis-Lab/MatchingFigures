@@ -115,7 +115,7 @@ def fill_blanks(participants):
     
     return non_pairs
 
-def schedule_network(G, starting_time=8, tpg=5, seeds=[0,5], path = 'MatchingFigures/figures_app/', filename ='Network-schedule.csv'):
+def schedule_network(G, starting_time=8, tpg=5, seeds=[0], path = 'MatchingFigures/figures_app/', filename ='Network-schedule.csv'):
 
     executed_pairs = []
     filename = path + filename
