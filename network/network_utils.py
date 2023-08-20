@@ -8,7 +8,7 @@ import random
 random.seed(4242)
 
 '''
-Contains functions for creating networks and (potentially) matchmaking algorithms. 
+Contains functions for creating networks and matchmaking algorithms. 
 '''
 
 # RANDOM NETWORK
@@ -32,10 +32,6 @@ def to_ring(n):
     pos = {i: (np.cos(theta[i]), np.sin(theta[i])) for i in range(n)}
 
     return pos
-
-
-# graphs
-
 
 # Draw the graph
 def draw(G, pos=None, with_labels=True, node_color='skyblue'):
@@ -136,9 +132,9 @@ def schedule_network(G, starting_time=8, tpg=5, seeds=[0], path = 'MatchingFigur
         # draw(G, pos, node_color=node_colors)
 
         pairs, participants = pairs_this_round(am, active_nodes, executed_pairs)
-        print(f'num of games this round: {len(pairs)}')
+        # print(f'num of games this round: {len(pairs)}')
         active_nodes = activate(active_nodes, participants)
-        print(active_nodes)
+        # print(active_nodes)
         if pairs:
             # for human readable output
             file.write(f'Round {round_count} starts at {str(time)} \n' )
@@ -165,6 +161,16 @@ def schedule_network(G, starting_time=8, tpg=5, seeds=[0], path = 'MatchingFigur
 
 
 def process_txt(file_name):
+
+    '''
+    inputs:
+        file_name: string, the file to read from.
+    
+    returns:
+        all_participants: list of sets, each set the participants of a given round;
+        all_pairs: list, each element is a list of the pairs of a given round.
+    '''
+
     all_participants = []
     all_pairs = []
 
@@ -199,6 +205,38 @@ def process_txt(file_name):
 
     return all_participants, all_pairs
 
+def cal_wait(all_participants, id, all_start_at_round_one=True):
+    '''
+    inputs: 
+        all_participants: lists of sets, participants of every round;
+        id: participant id.
+    returns: 
+        int, maximum number of rounds that any participant has to wait between games;
+        int, maximum total number of rounds that any participant has to wait between games.'''
+    
+    n_wait = 0
+    max_wait = 0
+    total_wait = 0
+    round_played = 0
+    for round_part in all_participants:
+        if round_played == 4:
+            break
+        if id in round_part:
+            n_wait = 0 
+            round_played += 1
+        elif not all_start_at_round_one and round_played == 0:
+            continue
+        else:
+            total_wait += 1
+            n_wait += 1
+        if n_wait > max_wait:
+            max_wait = n_wait
+    return max_wait, total_wait
+
+def find_first_round(all_participants, id):
+    for i, part in enumerate(all_participants):
+        if id in part:
+            return i 
 
 if __name__ == '__main__':
 
@@ -211,16 +249,26 @@ if __name__ == '__main__':
 
     # watts_strogatz(N_NODES, N_NEIGHBORS, P_REWIRE)
 
-
     round_count = schedule_network(random_G, filename='random4242.txt')
     round_count = schedule_network(ws_G, filename='ws4242.txt')
-    print(round_count)
+    # print(round_count)
 
-    # # Use the function
-    # all_participants, all_pairs = process_txt('MatchingFigures/figures_app/random4242.txt')
-    # print(all_participants)
-    # print(all_pairs)
+    # test LWT
+    all_participants, _ = process_txt('MatchingFigures/figures_app/random4242.txt')
+    lwts = np.zeros(N_NODES, dtype=int)
+    lcwts = np.zeros(N_NODES, dtype=int)
+    for i in range(N_NODES):
+        lwts[i], lcwts[i] = cal_wait(all_participants, i, False)
+    
+    print('max LWT', max(lwts))
+    print('max lcwts', max(lcwts))
+    print('lwts', lwts)
+    print('lcwts', lcwts)
 
-    # part, pairs, nonp = schedule_otree()
-    # print(part[0])
+    first_rounds = np.zeros(N_NODES, dtype=int)
+    for i in range(N_NODES):
+        first_rounds[i] = find_first_round(all_participants, i)
+    
+    print('first round', first_rounds)
+
     

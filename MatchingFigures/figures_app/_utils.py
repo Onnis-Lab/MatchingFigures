@@ -112,6 +112,7 @@ def process_txt(file_name):
 
     return all_participants, all_pairs
 
+
 if __name__ == '__main__':
     indx1, indx2 = get_perm(2)
     print(indx1, indx2)
