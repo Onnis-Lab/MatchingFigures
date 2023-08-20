@@ -1,7 +1,7 @@
 from otree.api import *
 from figures_app._utils import *
 import os
-from figures_app.network_utils import process_txt
+# from figures_app.network_utils import process_txt
 
 doc = """
 Your app description

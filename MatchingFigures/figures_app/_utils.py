@@ -77,7 +77,6 @@ def write_to_file(subsession: BaseSubsession, cards, results, filename):
             
             writer.writerow(write)
 
-
 def process_txt(file_name):
     all_participants = []
     all_pairs = []
@@ -90,19 +89,26 @@ def process_txt(file_name):
         line = lines[i].strip()
         if line.startswith("Round"):
             # Skip the time info
-            i += 2
-
-            # Extract participant IDs and save them to a set
-            participants = set(map(int, lines[i][18:-1].split(", ")))
-            all_participants.append(participants)
-
             i += 1
-            # Extract pairs and save them to a matrix
-            pairs_line = lines[i].strip()
-            pairs = [(int(pairs_line[j]), int(pairs_line[j+2])) for j in range(0, len(pairs_line), 5)]
-            all_pairs.append(pairs)
+            # print(line)
+            continue
+
+        # print('here', line[18:-1].split(", "))
+        participants = set(map(int, (line[18:-1].split(", "))))
+        # print('here', participants)
+        all_participants.append(participants)
 
         i += 1
+
+        pairs_line = lines[i].strip()
+        # print('aa,',pairs_line)
+        pairs = []
+        for j in range(1, len(pairs_line), 6):
+            # print(pairs_line[j])
+            pairs.append((int(pairs_line[j]), int(pairs_line[j+3])))
+        all_pairs.append(pairs)
+
+        i += 2
 
     return all_participants, all_pairs
 
