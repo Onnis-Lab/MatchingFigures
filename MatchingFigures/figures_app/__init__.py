@@ -187,6 +187,10 @@ class Results(Page):
             'n_figs': C.NUM_FIGURES
         }
 
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.id_in_subsession-1 in C.ALL_PARTICIPANTS[player.subsession.round_number-1]
+
 
 class WaitForGame(WaitPage):
     wait_for_all_groups = True
@@ -263,4 +267,4 @@ class Rules(Page):
         } 
 
 
-page_sequence = [WaitForGame, Rules, WaitForStartGame, Game, WaitForRound, Results, ShuffleWaitPage] # EndGame
+page_sequence = [WaitForGame, Rules, WaitForStartGame, Game, Results, WaitForRound, ShuffleWaitPage] # EndGame
