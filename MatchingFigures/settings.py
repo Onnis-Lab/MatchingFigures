@@ -5,7 +5,7 @@ SESSION_CONFIGS = [
         name='figures_app',
         display_name='The Simple Figure-Matching Game',
         app_sequence=['figures_app'],
-        num_demo_participants=4,
+        num_demo_participants=6,
     ),
 ]
 

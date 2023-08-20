@@ -1,6 +1,7 @@
 from otree.api import *
 from figures_app._utils import *
 import os
+# from figures_app.network_utils import process_txt
 
 doc = """
 Your app description
@@ -11,7 +12,9 @@ class C(BaseConstants):
     PLAYERS_PER_GROUP = 2 # people who are in the same group, None if all are in the same group
     MAIN_PLAYER_ID = 1
 
-    NUM_ROUNDS = 2
+    ALL_PARTICIPANTS, ALL_PAIRS = process_txt('figures_app/random4242.txt')
+ 
+    NUM_ROUNDS = len(ALL_PARTICIPANTS)
     PAYMENT_PER_CORRECT = 1
     TIME_RULES = 1 # min
     TIME_PER_GAME = 4 # min
@@ -22,34 +25,56 @@ class C(BaseConstants):
     NUM_FIGURES = 6
     N_SHUFFLE = 3
 
-    RESULTS = dict()
+    # RESULTS = dict()
+
     
 
 class Subsession(BaseSubsession):
-    pass    
+
+    def _create_group_matrix(self):
+        pairs = C.ALL_PAIRS[self.round_number-1]
+        matrix = []
+        players = self.get_players()
+        for pair in pairs:
+            group = [players[player_id] for player_id in pair]
+            matrix.append(group)
+        return matrix
+
+
+    def group_by_round(self):
+        
+        # New groupings
+        matrix = self._create_group_matrix()
+        self.set_group_matrix(matrix)
+
+    def assign_cards(self):
+        for group in self.get_groups():
+            cards = get_perm(
+                n_players=C.PLAYERS_PER_GROUP, 
+                n_cards=C.NUM_FIGURES, 
+                n_shuffle=C.N_SHUFFLE, 
+                n_total=C.NUM_TOTAL
+            )
+            
+            for i, player in enumerate(group.get_players()):
+                print(player.id_in_subsession)
+                player.card0 = cards[i][0]
+                player.card1 = cards[i][1]
+                player.card2 = cards[i][2]
+                player.card3 = cards[i][3]
+                player.card4 = cards[i][4]
+                player.card5 = cards[i][5]
+
 
 
 def creating_session(subsession: Subsession):
-    for group in subsession.get_groups():
-        cards = get_perm(
-            n_players=C.PLAYERS_PER_GROUP, 
-            n_cards=C.NUM_FIGURES, 
-            n_shuffle=C.N_SHUFFLE, 
-            n_total=C.NUM_TOTAL
-        )
-        
-        for i, player in enumerate(group.get_players()):
-            player.card0 = cards[i][0]
-            player.card1 = cards[i][1]
-            player.card2 = cards[i][2]
-            player.card3 = cards[i][3]
-            player.card4 = cards[i][4]
-            player.card5 = cards[i][5]
    
-    for player_id in range(1, len(subsession.get_players()) + 1): 
-        C.RESULTS[player_id] = [] 
+    # for player_id in range(1, len(subsession.get_players()) + 1): 
+        # C.RESULTS[player_id] = [] 
 
     # read network file
+    subsession.group_by_round()
+    subsession.assign_cards()
 
 
 class Group(BaseGroup):
@@ -128,7 +153,7 @@ class Game(Page):
                     "  //  Nedenfor må du skrive inn MERKET på figuren på " +\
                     "PARTNERENS SKJERM som samsvarer med FIGURENE PÅ DIN SKJERM. Vær oppmerksom på at svaret ditt skal ligge mellom 1 og 6." if self.id_in_group == C.MAIN_PLAYER_ID else "" +\
                     "Converse with your partner so he/she can input the correct labels of YOUR FIGURES on HIS/HERS ANSWER FORM." +\
-                    "  //  Snakk med partneren din, slik at han/hun kan skrive inn de riktige merkelappene for DINE FIGURER på HANS/HANS SVARSKJEMA.",
+                    "  //  Snakk med partneren din, slik at han/hun kan skrive inn de riktige merkelappene for DINE FIGURER på HANS/HENNES SVARSKJEMA.",
             'time': C.TIME_PER_GAME
         }
 
@@ -145,8 +170,12 @@ class Game(Page):
 
                 for player_ in players:
                     player_.score = score
-                    C.RESULTS[player_.id_in_subsession].append(score)
+                    # C.RESULTS[player_.id_in_subsession].append(score)
 
+    @staticmethod
+    def is_displayed(player: Player):
+        # print(C.ALL_PARTICIPANTS[player.subsession.round_number-1])
+        return player.id_in_subsession-1 in C.ALL_PARTICIPANTS[player.subsession.round_number-1]
 
 class Results(Page):
     timeout_seconds = C.TIME_RESULTS
@@ -161,36 +190,48 @@ class Results(Page):
 
 class WaitForGame(WaitPage):
     wait_for_all_groups = True
-    template_name = "figures_app/WaitForGame.html"
     
     @staticmethod
     def is_displayed(player: Player):
         return C.NUM_ROUNDS != 1 and player.group.round_number == 1
+
+
+class WaitForRound(WaitPage):
+    wait_for_all_groups = True
+    template_name = "figures_app/WaitForRound.html"
     
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.id_in_subsession-1 not in C.ALL_PARTICIPANTS[player.round_number-1]
+     
     @staticmethod
     def vars_for_template(self):
         multiplier = 1
 
+        for round in range(self.round_number, C.NUM_ROUNDS): # next round rmb counter starts at 1
+            if self.id_in_subsession-1 in C.ALL_PARTICIPANTS[round]:
+                break
+            multiplier += 1
+
         return {
-            'time': C.TIME_PER_GAME * multiplier,
-            'rounds' : self.rounds_to_play
+            'time': C.TIME_PER_GAME * multiplier
         } 
-
-
-class EndGame(Page):
-    @staticmethod
-    def is_displayed(player: Player):
-        return player.group.round_number == C.NUM_ROUNDS
     
-    @staticmethod
-    def vars_for_template(self):
-        return {
-            'sum_score': sum(C.RESULTS[self.id_in_subsession]),
-            'rounds_played': len(C.RESULTS[self.id_in_subsession]),
-            'label': ["Round", "Score"],
-            'rounds': list(range(1, len(C.RESULTS[self.id_in_subsession]) + 1)),
-            'scores': C.RESULTS[self.id_in_subsession]
-        }
+
+# class EndGame(Page):
+#     @staticmethod
+#     def is_displayed(player: Player):
+#         return player.group.round_number == C.NUM_ROUNDS
+    
+#     @staticmethod
+#     def vars_for_template(self):
+#         return {
+#             'sum_score': sum(C.RESULTS[self.id_in_subsession]),
+#             'rounds_played': len(C.RESULTS[self.id_in_subsession]),
+#             'label': ["Round", "Score"],
+#             'rounds': list(range(1, len(C.RESULTS[self.id_in_subsession]) + 1)),
+#             'scores': C.RESULTS[self.id_in_subsession]
+#         }
 
 
 class WaitForStartGame(WaitPage):
@@ -198,6 +239,16 @@ class WaitForStartGame(WaitPage):
     def after_all_players_arrive(group: Group):
         pass
 
+class ShuffleWaitPage(WaitPage):
+
+    wait_for_all_groups = True
+
+    @staticmethod
+    def after_all_players_arrive(subsession):
+        subsession.group_by_round()
+        subsession.assign_cards()
+        
+        
 
 class Rules(Page):
     timeout_seconds = C.TIME_RULES * 60
@@ -211,4 +262,5 @@ class Rules(Page):
         return {
         } 
 
-page_sequence = [WaitForGame, Rules, WaitForStartGame, Game, Results, EndGame]
+
+page_sequence = [WaitForGame, Rules, WaitForStartGame, Game, WaitForRound, Results, ShuffleWaitPage] # EndGame

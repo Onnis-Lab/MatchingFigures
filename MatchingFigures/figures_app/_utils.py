@@ -77,6 +77,40 @@ def write_to_file(subsession: BaseSubsession, cards, results, filename):
             
             writer.writerow(write)
 
+def process_txt(file_name):
+    all_participants = []
+    all_pairs = []
+
+    with open(file_name, 'r') as f:
+        lines = f.readlines()
+
+    i = 0
+    while i < len(lines):
+        line = lines[i].strip()
+        if line.startswith("Round"):
+            # Skip the time info
+            i += 1
+            # print(line)
+            continue
+
+        # print('here', line[18:-1].split(", "))
+        participants = set(map(int, (line[18:-1].split(", "))))
+        # print('here', participants)
+        all_participants.append(participants)
+
+        i += 1
+
+        pairs_line = lines[i].strip()
+        # print('aa,',pairs_line)
+        pairs = []
+        for j in range(1, len(pairs_line), 6):
+            # print(pairs_line[j])
+            pairs.append((int(pairs_line[j]), int(pairs_line[j+3])))
+        all_pairs.append(pairs)
+
+        i += 2
+
+    return all_participants, all_pairs
 
 if __name__ == '__main__':
     indx1, indx2 = get_perm(2)
