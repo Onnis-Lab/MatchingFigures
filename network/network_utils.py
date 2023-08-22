@@ -15,10 +15,6 @@ Contains functions for creating networks and matchmaking algorithms.
 N_NEIGHBORS = 4
 N_NODES = 6
 
-# PLANTED PARTITION NETWORK (remove)
-N_NODES_PER_COMMUNITY = 4
-N_COMMUNITY = int(N_NODES/N_NODES_PER_COMMUNITY)
-
 # WATTS-STROGATZ NETWORK
 P_REWIRE = 0.2
 
@@ -196,9 +192,13 @@ def process_txt(file_name):
         pairs_line = lines[i].strip()
         # print('aa,',pairs_line)
         pairs = []
-        for j in range(1, len(pairs_line), 6):
-            # print(pairs_line[j])
-            pairs.append((int(pairs_line[j]), int(pairs_line[j+3])))
+        # for j in range(1, len(pairs_line), 6):
+        # print(pairs_line)
+        # pairs.append((int(pairs_line[j]), int(pairs_line[j+3])))
+        pairs = pairs_line.split(')(')
+        pairs[0] = pairs[0][1:]  # remove the opening '(' from the first element
+        pairs[-1] = pairs[-1][:-1]  # remove the closing ')' from the last element
+
         all_pairs.append(pairs)
 
         i += 2
@@ -245,16 +245,18 @@ if __name__ == '__main__':
     pos = to_ring(N_NODES)
     
     # draw(random_G, pos)
-    # draw(ws_G, pos)
+    draw(ws_G, pos)
+    ws_G.nodes[3]
 
     # watts_strogatz(N_NODES, N_NEIGHBORS, P_REWIRE)
 
-    round_count = schedule_network(random_G, filename='random4242.txt')
-    round_count = schedule_network(ws_G, filename='ws4242.txt')
+    round_count = schedule_network(random_G, filename='random4242-100.txt')
+    round_count = schedule_network(ws_G, filename='ws4242-100.txt')
     # print(round_count)
 
     # test LWT
-    all_participants, _ = process_txt('MatchingFigures/figures_app/random4242.txt')
+    # all_participants, _ = process_txt('MatchingFigures/figures_app/random4242-100.txt')
+    all_participants, _ = process_txt('MatchingFigures/figures_app/ws4242-100.txt')
     lwts = np.zeros(N_NODES, dtype=int)
     lcwts = np.zeros(N_NODES, dtype=int)
     for i in range(N_NODES):
