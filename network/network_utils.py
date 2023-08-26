@@ -250,13 +250,13 @@ if __name__ == '__main__':
 
     # watts_strogatz(N_NODES, N_NEIGHBORS, P_REWIRE)
 
-    round_count = schedule_network(random_G, filename='random4242-100.txt')
-    round_count = schedule_network(ws_G, filename='ws4242-100.txt')
+    round_count = schedule_network(random_G, filename='random4242.txt')
+    round_count = schedule_network(ws_G, filename='ws4242.txt')
     # print(round_count)
 
     # test LWT
     # all_participants, _ = process_txt('MatchingFigures/figures_app/random4242-100.txt')
-    all_participants, _ = process_txt('MatchingFigures/figures_app/ws4242-100.txt')
+    all_participants, _ = process_txt('MatchingFigures/figures_app/ws4242.txt')
     lwts = np.zeros(N_NODES, dtype=int)
     lcwts = np.zeros(N_NODES, dtype=int)
     for i in range(N_NODES):
