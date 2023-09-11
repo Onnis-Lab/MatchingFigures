@@ -25,12 +25,8 @@ class C(BaseConstants):
     NUM_FIGURES = 6
     N_SHUFFLE = 3
 
-    # RESULTS = dict()
-
-    
 
 class Subsession(BaseSubsession):
-
     def _create_group_matrix(self):
         pairs = C.ALL_PAIRS[self.round_number-1]
         matrix = []
@@ -68,11 +64,6 @@ class Subsession(BaseSubsession):
 
 
 def creating_session(subsession: Subsession):
-   
-    # for player_id in range(1, len(subsession.get_players()) + 1): 
-        # C.RESULTS[player_id] = [] 
-
-    # read network file
     subsession.group_by_round()
     subsession.assign_cards()
 
@@ -170,11 +161,9 @@ class Game(Page):
 
                 for player_ in players:
                     player_.score = score
-                    # C.RESULTS[player_.id_in_subsession].append(score)
 
     @staticmethod
     def is_displayed(player: Player):
-        # print(C.ALL_PARTICIPANTS[player.subsession.round_number-1])
         return player.id_in_subsession-1 in C.ALL_PARTICIPANTS[player.subsession.round_number-1]
 
 class Results(Page):
@@ -244,7 +233,6 @@ class WaitForStartGame(WaitPage):
         pass
 
 class ShuffleWaitPage(WaitPage):
-
     wait_for_all_groups = True
 
     @staticmethod
