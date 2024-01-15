@@ -1,6 +1,8 @@
 # TalkingGame
 An oTree game developed for the purpose of getting participants to communicate with each other. 
 
+## Version Information
+This is the version where all the participants must be online at the same time.
 
 ## Dependencies
 - OTree: https://www.otree.org/
@@ -31,11 +33,12 @@ Click **upload** then choose the .otreezip file.
 Reset DB if you have saved the file.
 
 
-
 ### Create Sessions
 If you don't create a session, demo version will be run with all the debug infomation. 
 Go to Sessions, click **Create new session**. Create a new session for **EVERY EXPERIMENT**. 
 
+
+## Usage
 
 ### Change Number of Participants in Demo
 Go to [settings.py](figures_app/settings.py), change the default number 6 in line 8
@@ -43,3 +46,12 @@ Go to [settings.py](figures_app/settings.py), change the default number 6 in lin
         num_demo_participants=6,
 ```
 to your desired number of participants.
+
+### Change Network
+The two networks (random and clustered) are saved in the textfiles **random4242.txt** and ws4242.txt** after you run the file [network_utils](network/network_utils.py).
+
+To run *network_utils*, first *cd* into the *network* folder, then write the following command in your terminal:
+```sh
+python3 network_utils.py
+```
+The network files should be generated in the folder [figures_app](MatchingFigures/figures_app/).

@@ -57,7 +57,7 @@ class Subsession(BaseSubsession):
             )
             
             for i, player in enumerate(group.get_players()):
-                print(player.id_in_subsession)
+                # print(player.id_in_subsession)
                 player.card0 = cards[i][0]
                 player.card1 = cards[i][1]
                 player.card2 = cards[i][2]
