@@ -37,3 +37,9 @@ If you don't create a session, demo version will be run with all the debug infom
 Go to Sessions, click **Create new session**. Create a new session for **EVERY EXPERIMENT**. 
 
 
+### Change Number of Participants in Demo
+Go to [settings.py](figures_app/settings.py), change the default number 6 in line 8
+```py
+        num_demo_participants=6,
+```
+to your desired number of participants.
