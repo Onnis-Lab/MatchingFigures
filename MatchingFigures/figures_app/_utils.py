@@ -100,12 +100,8 @@ def process_txt(file_name):
 
         i += 1
 
-        pairs_line = lines[i].strip()
-        # print('aa,',pairs_line)
-        pairs = []
-        for j in range(1, len(pairs_line), 6):
-            # print(pairs_line[j])
-            pairs.append((int(pairs_line[j]), int(pairs_line[j+3])))
+        pairs_line_tuple_strings = lines[i].strip('\n').strip('()').split(')(')
+        pairs = [tuple(map(int, pair.split(','))) for pair in pairs_line_tuple_strings]
         all_pairs.append(pairs)
 
         i += 2
