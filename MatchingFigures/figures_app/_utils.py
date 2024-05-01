@@ -7,6 +7,17 @@ from otree.api import *
 # name of the image files 
 
 # np.random.seed(1024)
+def has_duplicate_lists(lst):
+    # Iterate through each pair of lists
+    for i in range(len(lst)):
+        for j in range(i + 1, len(lst)):
+            # If two lists are equal, return True
+            if lst[i] == lst[j]:
+                return True
+    # If no duplicate lists are found, return False
+    return False
+
+
 def get_perm(n_players=1, n_shuffle=3, n_cards=6, n_total=6):
     """
         Arguments:
@@ -30,8 +41,11 @@ def get_perm(n_players=1, n_shuffle=3, n_cards=6, n_total=6):
             player_cards[new_idx[i]] = indices[shuffle_idx[i]]
         
         cards.append(player_cards)
-
-    return cards
+    # If we do not want any duplicates, re-run the method.
+    if has_duplicate_lists(cards):
+        return get_perm(n_players, n_shuffle, n_cards, n_total)
+    else:
+        return cards
 
 def check_answers(inx1, indx2, answers):
     score = 0
@@ -93,9 +107,7 @@ def process_txt(file_name):
             # print(line)
             continue
 
-        # print('here', line[18:-1].split(", "))
         participants = set(map(int, (line[18:-1].split(", "))))
-        # print('here', participants)
         all_participants.append(participants)
 
         i += 1

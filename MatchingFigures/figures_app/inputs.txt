@@ -8,7 +8,7 @@ Participant IDs: {0, 1, 2, 3}
 
 Round 3 starts at 8:10:00 
 Participant IDs: {0, 1, 2, 3, 4, 5} 
-(0, 3)(1, 4)(2, 5)
+(0, 4)(1, 2)(3, 5)
 
 Round 4 starts at 8:15:00 
 Participant IDs: {0, 2, 3, 5} 
