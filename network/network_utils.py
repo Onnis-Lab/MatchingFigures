@@ -16,7 +16,7 @@ N_NEIGHBORS = 4
 N_NODES = 6
 
 # WATTS-STROGATZ NETWORK
-P_REWIRE = 0.2
+P_REWIRE = 0.
 
 # GAME
 MAX_ROUNDS = 20
@@ -30,13 +30,14 @@ def to_ring(n):
     return pos
 
 # Draw the graph
-def draw(G, pos=None, with_labels=True, node_color='skyblue'):
+def draw(G, pos=None, with_labels=True, node_color='skyblue', filename='drawing.png'):
     if pos:
         nx.draw(G, pos, with_labels=with_labels, node_size=100, node_color=node_color)
     else:
         nx.draw(G, with_labels=with_labels, node_size=20, node_shape='8')
 
     plt.gca().set_aspect('equal', adjustable='box')
+    plt.savefig(filename, dpi=300)
     plt.show()
 
 def pairs_this_round(am, active_nodes, executed_pairs):
@@ -242,21 +243,34 @@ if __name__ == '__main__':
 
     random_G = nx.random_regular_graph(N_NEIGHBORS, N_NODES)
     ws_G = nx.watts_strogatz_graph(N_NODES,N_NEIGHBORS,P_REWIRE)
+    random_clustering = nx.average_clustering(random_G)
+    random_clustering_unweighted = nx.clustering(random_G)
+    random_triangles = nx.triangles(random_G)
+    ws_clustering = nx.average_clustering(ws_G)
+    ws_clustering_unweighted = nx.clustering(ws_G)
+    ws_triangles = nx.triangles(ws_G)
+    total_random_triangles = 0
+    for key, tri in random_triangles.items():
+        total_random_triangles += tri
+    total_ws_triangles = 0
+    for key, tri in ws_triangles.items():
+        total_ws_triangles += tri
     pos = to_ring(N_NODES)
     
-    # draw(random_G, pos)
-    draw(ws_G, pos)
+    draw(random_G, pos, filename='random.png')
+    draw(ws_G, pos, filename='watts_strogatz.png')
     ws_G.nodes[3]
 
     # watts_strogatz(N_NODES, N_NEIGHBORS, P_REWIRE)
 
-    round_count = schedule_network(random_G, filename='random4242.txt')
-    round_count = schedule_network(ws_G, filename='ws4242.txt')
+    # round_count = schedule_network(random_G, tpg=5, path = 'MatchingFigures-random/figures_app/', filename='inputs.txt')
+    # round_count = schedule_network(ws_G, tpg=5, path = 'MatchingFigures-ws/figures_app/', filename='inputs.txt')
+    round_count = schedule_network(ws_G, tpg=5, path = 'MatchingFigures/figures_app/', filename='inputs.txt')
     # print(round_count)
 
     # test LWT
-    # all_participants, _ = process_txt('MatchingFigures/figures_app/random4242-100.txt')
-    all_participants, _ = process_txt('MatchingFigures/figures_app/ws4242.txt')
+    # all_participants, _ = process_txt('MatchingFigures-random/figures_app/inputs.txt')
+    all_participants, _ = process_txt('MatchingFigures-ws/figures_app/inputs.txt')
     lwts = np.zeros(N_NODES, dtype=int)
     lcwts = np.zeros(N_NODES, dtype=int)
     for i in range(N_NODES):
