@@ -5,7 +5,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import datetime
 import random
-random.seed(4422)
+random.seed(4242)
 
 '''
 Contains functions for creating networks and matchmaking algorithms. 
@@ -13,7 +13,7 @@ Contains functions for creating networks and matchmaking algorithms.
 
 # RANDOM NETWORK
 N_NEIGHBORS = 4
-N_NODES = 8
+N_NODES = 6
 
 # WATTS-STROGATZ NETWORK
 P_REWIRE = 0.0
@@ -122,7 +122,7 @@ def schedule_network(G, starting_time=8, tpg=5, seeds=[0], path = 'MatchingFigur
     file = open(filename, 'w')
 
     round_count = 1
-    # max_game_per_round = 0
+    max_game_per_round = 0
     for _ in range(MAX_ROUNDS):
         node_colors = ['red' if active_nodes[node-1] else 'skyblue' for node in G.nodes()]
         # draw(G, pos, node_color=node_colors)
@@ -141,14 +141,10 @@ def schedule_network(G, starting_time=8, tpg=5, seeds=[0], path = 'MatchingFigur
             # file.write(f'{str(participants)[1:-1]};')
             for pair in pairs:
                 file.write(f'{pair[0],pair[1]}')
-            file.write('\n')
-
-            # non_pairs = fill_blanks(participants)
-            # for pair in non_pairs:
-            #     file.write(f'{pair[0],pair[1]}')
-            
-            non_active = list(set(np.arange(N_NODES)) - participants)
-            file.write(f'non_active: {non_active}\n')
+            # # file.write(';')
+            non_pairs = fill_blanks(participants)
+            for pair in non_pairs:
+                file.write(f'{pair[0],pair[1]}')
             file.write('\n\n')
 
 
@@ -173,7 +169,6 @@ def process_txt(file_name):
 
     all_participants = []
     all_pairs = []
-    non_active_pairs = []
 
     with open(file_name, 'r') as f:
         lines = f.readlines()
@@ -187,7 +182,6 @@ def process_txt(file_name):
             # print(line)
             continue
 
-        # print(i)
         # print('here', line[18:-1].split(", "))
         participants = set(map(int, (line[18:-1].split(", "))))
         # print('here', participants)
@@ -207,11 +201,7 @@ def process_txt(file_name):
 
         all_pairs.append(pairs)
 
-        i += 1
-        # something about not_active
-        non_active_pairs.append(line[13:-1])
-
-        i += 3
+        i += 2
 
     return all_participants, all_pairs
 
@@ -254,7 +244,7 @@ if __name__ == '__main__':
     ws_G = nx.watts_strogatz_graph(N_NODES,N_NEIGHBORS,P_REWIRE)
     pos = to_ring(N_NODES)
     
-    draw(random_G, pos)
+    # draw(random_G, pos)
     draw(ws_G, pos)
     ws_G.nodes[3]
 

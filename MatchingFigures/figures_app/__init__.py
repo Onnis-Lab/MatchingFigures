@@ -35,28 +35,15 @@ class Subsession(BaseSubsession):
         pairs = C.ALL_PAIRS[self.round_number-1]
         matrix = list()
         players = self.get_players()
-        all_dummy_players = []
-
-        for player in players:
-            if player in C.ALL_PARTICIPANTS[player.subsession.round_number - 1]:
-                player.playing = 1 
-            else:
-                player.playing = 0
 
         for pair in pairs:
             group = list()
-            for player_id in pair:
-                if players[player_id].playing:
-                    group.append(players[player_id])
-            matrix.append(group)
 
-        # non active players are now grouped with a dummy player
-        for player in players:
-            group = list()
             for player_id in pair: 
                 group.append(players[player_id])
                 players[player_id].playing = 1 if player_id in C.ALL_PARTICIPANTS[players[player_id].subsession.round_number - 1] else 0
 
+            matrix.append(group)
 
         return matrix
 
@@ -108,7 +95,6 @@ class Player(BasePlayer):
     '''All variables in the Player is for the current round.'''
     # payoff and round_number are defined in the background, don't redefine it.  
 
-    is_dummy = models.BooleanField(initial=False)
     score = models.IntegerField(initial=0)
     playing = models.IntegerField(initial=0)
     
