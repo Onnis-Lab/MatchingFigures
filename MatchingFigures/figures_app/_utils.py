@@ -78,8 +78,10 @@ def write_to_file(subsession: BaseSubsession, cards, results, filename):
             writer.writerow(write)
 
 def process_txt(file_name):
+    
     all_participants = []
     all_pairs = []
+    non_active_pairs = []
 
     with open(file_name, 'r') as f:
         lines = f.readlines()
@@ -108,7 +110,11 @@ def process_txt(file_name):
             pairs.append((int(pairs_line[j]), int(pairs_line[j+3])))
         all_pairs.append(pairs)
 
-        i += 2
+        i += 1
+        # something about not_active
+        non_active_pairs.append(line[13:-1])
+
+        i += 3
 
     return all_participants, all_pairs
 
